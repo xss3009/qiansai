@@ -1,0 +1,11 @@
+# Target labels
+ demo+demo
+# Source files and their labels
+G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/CMakeFiles/demo+demo-build
+G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/CMakeFiles/demo+demo-build.rule
+G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-build.rule
+G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-configure.rule
+G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-patch.rule
+G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-update.rule
+G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-download.rule
+G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-mkdir.rule

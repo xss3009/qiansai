@@ -1,0 +1,202 @@
+project:
+  packs:
+    - pack: ARM::CMSIS@^6.1.0
+    - pack: Keil::STM32F0xx_DFP@^3.0.0
+    - pack: ARM::CMSIS-NN@^4.0.0
+    - pack: ARM::CMSIS-DSP@^1.10.1
+  setups:
+    - setup: Options for demo
+      add-path:
+        - ../Core/Inc
+        - ../Drivers/STM32F0xx_HAL_Driver/Inc
+        - ../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy
+        - ../Drivers/CMSIS/Device/ST/STM32F0xx/Include
+        - ../Drivers/CMSIS/Include
+        - ../Middlewares/Third_Party/FreeRTOS/Source/include
+        - ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
+        - ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM0
+        - ../Drivers/Module_driver
+        - ../Middlewares/Third_Party/libmodbus
+      debug: "on"
+      define:
+        - USE_HAL_DRIVER
+        - STM32F030xC
+      misc:
+        - C:
+            - -std=c99
+          C-CPP:
+            - -fno-rtti
+            - -funsigned-char
+            - -fshort-enums
+            - -fshort-wchar
+            - -ffunction-sections
+            - -Wno-packed
+            - -Wno-missing-variable-declarations
+            - -Wno-missing-prototypes
+            - -Wno-missing-noreturn
+            - -Wno-sign-conversion
+            - -Wno-nonportable-include-path
+            - -Wno-reserved-id-macro
+            - -Wno-unused-macros
+            - -Wno-documentation-unknown-command
+            - -Wno-documentation
+            - -Wno-license-management
+            - -Wno-parentheses-equality
+          CPP:
+            - -xc++
+            - -std=c++11
+            - -fno-exceptions
+          ASM:
+            - -masm=auto
+          Link:
+            - --map
+            - --load_addr_map_info
+            - --xref
+            - --callgraph
+            - --symbols
+            - --info sizes
+            - --info totals
+            - --info unused
+            - --info veneers
+            - --strict
+            - --summary_stderr
+            - --info summarysizes
+  linker:
+    - script: demo_demo.sct
+  groups:
+    - group: Application/MDK-ARM
+      files:
+        - file: startup_stm32f030xc.s
+    - group: Application/User/Core
+      files:
+        - file: ../Core/Src/main.c
+        - file: ../Core/Src/gpio.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Core/Src/freertos.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Core/Src/adc.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Core/Src/i2c.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Core/Src/usart.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Core/Src/stm32f0xx_it.c
+        - file: ../Core/Src/stm32f0xx_hal_msp.c
+    - group: Drivers/STM32F0xx_HAL_Driver
+      files:
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_adc.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_adc_ex.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc.c
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc_ex.c
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal.c
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_i2c.c
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_i2c_ex.c
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_gpio.c
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_dma.c
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_cortex.c
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_pwr.c
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_pwr_ex.c
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_flash.c
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_flash_ex.c
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_exti.c
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim.c
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim_ex.c
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_uart.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_uart_ex.c
+          misc:
+            - CPP:
+                - -xc++
+    - group: Drivers/CMSIS
+      files:
+        - file: ../Core/Src/system_stm32f0xx.c
+    - group: Middlewares/FreeRTOS
+      misc:
+        - C-CPP:
+            - -Wno-packed
+            - -Wno-missing-variable-declarations
+            - -Wno-missing-prototypes
+            - -Wno-missing-noreturn
+            - -Wno-sign-conversion
+            - -Wno-nonportable-include-path
+            - -Wno-reserved-id-macro
+            - -Wno-unused-macros
+            - -Wno-documentation-unknown-command
+            - -Wno-documentation
+            - -Wno-license-management
+            - -Wno-parentheses-equality
+            - -Wno-covered-switch-default
+            - -Wno-unreachable-code-break
+          CPP:
+            - -xc++
+            - -fno-exceptions
+      files:
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/croutine.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/event_groups.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/list.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/queue.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/stream_buffer.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/tasks.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/timers.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c
+          misc:
+            - CPP:
+                - -xc++
+        - file: ../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM0/port.c
+          misc:
+            - CPP:
+                - -xc++
+    - group: Module_driver
+      files:
+        - file: ../Drivers/Module_driver/uart_device.c
+    - group: Middlewares/libmodbus
+      files:
+        - file: ../Middlewares/Third_Party/libmodbus/errno.c
+        - file: ../Middlewares/Third_Party/libmodbus/modbus.c
+        - file: ../Middlewares/Third_Party/libmodbus/modbus-st-rtu.c
+        - file: ../Middlewares/Third_Party/libmodbus/modbus-data.c
+  components:
+    - component: ARM::CMSIS:CORE

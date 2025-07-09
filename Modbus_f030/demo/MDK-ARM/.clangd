@@ -1,0 +1,22 @@
+CompileFlags:
+  CompilationDatabase: g:\1\Modbus_f030\demo\MDK-ARM\out\demo\demo
+  Add:
+    - '-IG:/QianSai/Modbus_f030/demo/MDK-ARM/RTE/_demo'
+    - >-
+      -IC:/Users/27622/AppData/Local/arm/packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include
+    - '-IG:/QianSai/Modbus_f030/demo/MDK-ARM/../Core/Inc'
+    - '-IG:/QianSai/Modbus_f030/demo/MDK-ARM/../Drivers/STM32F0xx_HAL_Driver/Inc'
+    - >-
+      -IG:/QianSai/Modbus_f030/demo/MDK-ARM/../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy
+    - >-
+      -IG:/QianSai/Modbus_f030/demo/MDK-ARM/../Drivers/CMSIS/Device/ST/STM32F0xx/Include
+    - '-IG:/QianSai/Modbus_f030/demo/MDK-ARM/../Drivers/CMSIS/Include'
+    - >-
+      -IG:/QianSai/Modbus_f030/demo/MDK-ARM/../Middlewares/Third_Party/FreeRTOS/Source/include
+    - >-
+      -IG:/QianSai/Modbus_f030/demo/MDK-ARM/../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
+    - >-
+      -IG:/QianSai/Modbus_f030/demo/MDK-ARM/../Middlewares/Third_Party/FreeRTOS/Source/portable/RVDS/ARM_CM0
+    - '-IG:/QianSai/Modbus_f030/demo/MDK-ARM/../Drivers/Module_driver'
+    - '-IG:/QianSai/Modbus_f030/demo/MDK-ARM/../Middlewares/Third_Party/libmodbus'
+    - '-IG:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo'

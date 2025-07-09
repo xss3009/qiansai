@@ -1,0 +1,5 @@
+{
+    "clangd.arguments": [
+        "--compile-commands-dir=g:\\1\\Modbus_f030\\demo\\MDK-ARM\\out\\demo\\demo"
+    ]
+}

@@ -1,0 +1,15 @@
+# ninja log v6
+2	11208	7718879350272313	G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-configure	7293ae3bdbd64c81
+2	371	7718878460131363	demo+demo/src/demo+demo-stamp/demo+demo-mkdir	25892ac8fbaa5d9a
+783	1106	7718878467449781	G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-update	fcb94699f4a2983d
+2	371	7718878460131363	G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-mkdir	25892ac8fbaa5d9a
+1106	1436	7718878470740372	demo+demo/src/demo+demo-stamp/demo+demo-patch	8389a4814caa1f53
+372	783	7718878464137326	demo+demo/src/demo+demo-stamp/demo+demo-download	ad656cada635eeef
+372	783	7718878464137326	G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-download	ad656cada635eeef
+783	1106	7718878467449781	demo+demo/src/demo+demo-stamp/demo+demo-update	fcb94699f4a2983d
+1106	1436	7718878470740372	G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-patch	8389a4814caa1f53
+2	11208	7718879350272313	demo+demo/src/demo+demo-stamp/demo+demo-configure	7293ae3bdbd64c81
+4	1489	7730632105146383	demo+demo/src/demo+demo-stamp/demo+demo-database	d69e0057336d970b
+4	1489	7730632105146383	G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-database	d69e0057336d970b
+2	810	7731361987863722	demo+demo/src/demo+demo-stamp/demo+demo-database	d69e0057336d970b
+2	810	7731361987863722	G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-database	d69e0057336d970b

@@ -1,0 +1,40 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/CMakeFiles/demo+demo-executes"
+		},
+		{
+			"file" : "G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/CMakeFiles/demo+demo-executes.rule"
+		},
+		{
+			"file" : "G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-executes.rule"
+		},
+		{
+			"file" : "G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-build.rule"
+		},
+		{
+			"file" : "G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-configure.rule"
+		},
+		{
+			"file" : "G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-patch.rule"
+		},
+		{
+			"file" : "G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-update.rule"
+		},
+		{
+			"file" : "G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-download.rule"
+		},
+		{
+			"file" : "G:/QianSai/Modbus_f030/demo/MDK-ARM/tmp/demo+demo/src/demo+demo-stamp/demo+demo-mkdir.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"demo+demo"
+		],
+		"name" : "demo+demo-executes"
+	}
+}

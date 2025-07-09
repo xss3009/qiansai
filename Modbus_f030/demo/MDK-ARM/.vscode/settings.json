@@ -1,0 +1,19 @@
+{
+    "clangd.arguments": [
+        "--compile-commands-dir=g:\\QianSai\\Modbus_f030\\demo\\MDK-ARM\\out\\demo\\demo"
+    ],
+    "files.associations": {
+        "iostream": "cpp",
+        "intrinsics.h": "c",
+        "ostream": "cpp",
+        "vector": "cpp",
+        "*.c": "c",
+        "*.uvprojx": "arm",
+        "compare": "c",
+        "adc.h": "c",
+        "cstdint": "c",
+        "numbers": "c",
+        "random": "c",
+        "cstdio": "c"
+    }
+}
