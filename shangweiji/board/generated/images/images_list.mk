@@ -1,0 +1,1 @@
+GEN_CSRCS += _some_alpha_490x286.c _Warehouse_alpha_489x286.c _qinghuo_alpha_100x100.c _milcarr_alpha_100x100.c _pape_alpha_494x282.c _huozai4_alpha_100x100.c
