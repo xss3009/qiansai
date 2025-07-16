@@ -152,15 +152,15 @@ void USART1_IRQHandler(void)
 void USART3_6_IRQHandler(void)
 {
   /* USER CODE BEGIN USART3_6_IRQn 0 */
-    extern void Handle_UART_Idle(UART_HandleTypeDef * huart);
+  //  extern void Handle_UART_Idle(UART_HandleTypeDef * huart);
 
-    if (__HAL_UART_GET_FLAG(&huart5, UART_FLAG_IDLE))
-    {
-        Handle_UART_Idle(&huart5);
-        __HAL_UART_CLEAR_IDLEFLAG(&huart5);
-    }
+  //  if (__HAL_UART_GET_FLAG(&huart5, UART_FLAG_IDLE))
+  //  {
+  //      Handle_UART_Idle(&huart5);
+  //      __HAL_UART_CLEAR_IDLEFLAG(&huart5);
+  //  }
   /* USER CODE END USART3_6_IRQn 0 */
-  HAL_UART_IRQHandler(&huart5);(&huart5);
+  HAL_UART_IRQHandler(&huart5);
   /* USER CODE BEGIN USART3_6_IRQn 1 */
 
   /* USER CODE END USART3_6_IRQn 1 */

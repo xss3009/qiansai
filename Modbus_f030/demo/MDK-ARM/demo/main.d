@@ -28,6 +28,7 @@
 .\demo\main.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_flash_ex.h
 .\demo\main.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_i2c.h
 .\demo\main.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_i2c_ex.h
+.\demo\main.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_iwdg.h
 .\demo\main.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_pwr.h
 .\demo\main.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_pwr_ex.h
 .\demo\main.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_tim.h
@@ -46,6 +47,7 @@
 .\demo\main.o: ../Core/Inc/adc.h
 .\demo\main.o: ../Core/Inc/dma.h
 .\demo\main.o: ../Core/Inc/i2c.h
+.\demo\main.o: ../Core/Inc/iwdg.h
 .\demo\main.o: ../Core/Inc/tim.h
 .\demo\main.o: ../Core/Inc/usart.h
 .\demo\main.o: ../Core/Inc/gpio.h
