@@ -3,28 +3,28 @@
 #include "user_mb_app.h"
 #include "user_modbus.h"
 #include "control_algorithm.h"
+#include "dma_sender.h"
 
 void sampleShelvesEnvironmentalData(DayData_Def *dayData)
 {
     // 声明Modbus数据缓冲区（来自外部文件）
-    extern USHORT        usMRegInBuf[MB_MASTER_TOTAL_SLAVE_NUM][M_REG_INPUT_NREGS];
+    extern USHORT usMRegInBuf[MB_MASTER_TOTAL_SLAVE_NUM][M_REG_INPUT_NREGS];
     //    extern UCHAR  ucMCoilBuf[MB_MASTER_TOTAL_SLAVE_NUM][M_COIL_NCOILS / 8];
-    extern UCHAR         ucMDiscInBuf[MB_MASTER_TOTAL_SLAVE_NUM][M_DISCRETE_INPUT_NDISCRETES / 8];
-    extern Warehouse_Def warehouse;
+    extern UCHAR  ucMDiscInBuf[MB_MASTER_TOTAL_SLAVE_NUM][M_DISCRETE_INPUT_NDISCRETES / 8];
+    //    extern Warehouse_Def warehouse;
 
     static rtc_counting i              = 0; // 5分钟周期计数器
     static rtc_counting fiveMinCounter = 0; // 5分钟采样计数器
     rt_list_t          *sensor_list;
 
-    Warehouse_Def *deviceStatus = &warehouse; // 传感器状态结构体
+    //    Warehouse_Def *deviceStatus = &warehouse; // 传感器状态结构体
 
-    time_t       now;                         // 当前时间戳
-    rt_uint16_t  averageTemperature    = 0;   // 温度平均值
-    rt_uint16_t  averageHumidity       = 0;   // 湿度平均值
-    rt_uint16_t  averageCargo          = 0;   // 货物状态平均值
-    rtc_counting NumberOfOnlineSensors = 0;   // 在线传感器计数器
+    time_t       now;                       // 当前时间戳
+    rt_uint16_t  averageTemperature    = 0; // 温度平均值
+    rt_uint16_t  averageHumidity       = 0; // 湿度平均值
+    rt_uint16_t  averageCargo          = 0; // 货物状态平均值
+    rtc_counting NumberOfOnlineSensors = 0; // 在线传感器计数器
     rt_err_t     result;
-
     pmb_sensor_def pdevice, tmp;
 
     rt_mutex_take(get_list_lock(), RT_WAITING_FOREVER);
@@ -39,6 +39,7 @@ void sampleShelvesEnvironmentalData(DayData_Def *dayData)
         {
             rt_kprintf("第二次获取链表失败\n");
             rt_mutex_release(get_list_lock());
+
             return;
         }
     }
@@ -68,34 +69,50 @@ void sampleShelvesEnvironmentalData(DayData_Def *dayData)
 
             if (pdevice->status == sensorOnline)
             {
-                if (pdevice->type == ShelfSensors)
+
+                if ((pdevice->type == ShelfSensors) || (pdevice->type == DeviceControlSensors) ||
+                    (pdevice->type == ShelfAmbientLightSensor))
                 {
 #ifdef DEBUG_ENABLE
                     // 打印在线传感器数据（温度、湿度、货物状态）
                     rt_kprintf("|\t%d\t\t|\t%d.%d℃\t|\t%d.%d%\t|\t%s\t|\n",
                                pdevice->slaveID,
-                               (usMRegInBuf[pdevice->slaveID - 1][0] / 10),                 // 温度整数部分
-                               (usMRegInBuf[pdevice->slaveID - 1][0] % 10),                 // 温度小数部分
-                               (usMRegInBuf[pdevice->slaveID - 1][1] / 10),                 // 湿度整数部分
-                               (usMRegInBuf[pdevice->slaveID - 1][1] % 10),                 // 湿度小数部分
-                               (ucMDiscInBuf[pdevice->slaveID - 1][0] ? "true" : "false")); // 货物存在状态
+                               (usMRegInBuf[pdevice->slaveID - 1][0] / 10),                        // 温度整数部分
+                               (usMRegInBuf[pdevice->slaveID - 1][0] % 10),                        // 温度小数部分
+                               (usMRegInBuf[pdevice->slaveID - 1][1] / 10),                        // 湿度整数部分
+                               (usMRegInBuf[pdevice->slaveID - 1][1] % 10),                        // 湿度小数部分
+                               (ucMDiscInBuf[pdevice->slaveID - 1][0] & 0x01 ? "true" : "false")); // 货物存在状态
+
+                    if(ucMDiscInBuf[pdevice->slaveID - 1][0]) {
+                        uint8_t id = pdevice->slaveID;
+                        uint8_t temp_val = usMRegInBuf[pdevice->slaveID - 1][0] / 10;
+                        uint8_t humi_val = usMRegInBuf[pdevice->slaveID - 1][1] / 10;
+
+                        // 立即发送五次
+                        send_sensor_data_repeatedly(id, temp_val, humi_val);
+                    }
+
+
 #endif
                     // 累加计算平均值
                     averageTemperature += usMRegInBuf[pdevice->slaveID - 1][0];
                     averageHumidity    += usMRegInBuf[pdevice->slaveID - 1][1];
-                    averageCargo       += ucMDiscInBuf[pdevice->slaveID - 1][0];
+                    averageCargo       += ucMDiscInBuf[pdevice->slaveID - 1][0] & 0x01;
                     NumberOfOnlineSensors++;
                 }
                 else
                 {
                     // 打印在线传感器数据（温度、湿度、货物状态）
                     rt_kprintf("|\t%d\t\t|\t%d.%d℃\t|\t%d.%d%\t|\t%s\t|\n",
-                               pdevice->slaveID + 1,
+                               pdevice->slaveID,
                                (usMRegInBuf[pdevice->slaveID - 1][0] / 10), // 温度整数部分
                                (usMRegInBuf[pdevice->slaveID - 1][0] % 10), // 温度小数部分
                                (usMRegInBuf[pdevice->slaveID - 1][1] / 10), // 湿度整数部分
                                (usMRegInBuf[pdevice->slaveID - 1][1] % 10), // 湿度小数部分
                                "N/A");                                      // 货物存在状态
+                    averageTemperature += usMRegInBuf[pdevice->slaveID - 1][0];
+                    averageHumidity    += usMRegInBuf[pdevice->slaveID - 1][1];
+                    NumberOfOnlineSensors++;
                 }
             }
             else
@@ -107,6 +124,7 @@ void sampleShelvesEnvironmentalData(DayData_Def *dayData)
 #endif
             }
         }
+
 #ifdef DEBUG_ENABLE
         // 打印平均值数据
         rt_kprintf("|\t平均值为\t|\t%d.%d\t|\t%d.%d\t|\t%d%%\t|\n",
@@ -118,6 +136,7 @@ void sampleShelvesEnvironmentalData(DayData_Def *dayData)
 
         rt_kprintf("============================================================================================\n");
         rt_kprintf("传感器在线数: %d\n", NumberOfOnlineSensors);
+        cmmmmmm = NumberOfOnlineSensors;
 #endif
         if (((averageTemperature / NumberOfOnlineSensors) / 10 > 29) ||
             ((averageHumidity / NumberOfOnlineSensors) / 10 > 70))
@@ -149,10 +168,10 @@ void sampleShelvesEnvironmentalData(DayData_Def *dayData)
             {
                 dayData->temperature[num][dayData->counting] = usMRegInBuf[num][0];
                 dayData->humidity[num][dayData->counting]    = usMRegInBuf[num][1];
-                dayData->goods[num][dayData->counting]       = ucMDiscInBuf[num][0];
+                dayData->goods[num][dayData->counting]       = ucMDiscInBuf[num][0] & 0x01;
 #ifdef DEBUG_ENABLE
                 rt_kprintf("num:%d,temperature:%d,humidity:%d,goods:%d\n",
-                           num,
+                           num + 1,
                            dayData->temperature[num][dayData->counting],
                            dayData->humidity[num][dayData->counting],
                            dayData->goods[num][dayData->counting]);
@@ -172,6 +191,8 @@ void sampleShelvesEnvironmentalData(DayData_Def *dayData)
                        dayData->averageWarehouseHumidity[dayData->counting],
                        dayData->averageWarehouseHumidity[dayData->counting] % 10);
             rt_kprintf("仓库平均使用率：%d%%\n", dayData->averageWarehouseGoods[dayData->counting]);
+            tmmmmmm = dayData->averageWarehouseTemperature[dayData->counting];
+            smmmmmm = dayData->averageWarehouseHumidity[dayData->counting];
 #endif
 
             dayData->counting++; // 日数据计数器递增

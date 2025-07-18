@@ -24,7 +24,7 @@
 
 /* lv_conf.h */
 #define LV_USE_FS_FATFS 1
-#define LV_FS_FATFS_LETTER 'S'  /* 设置驱动器字母 */
+#define LV_FS_FATFS_LETTER '0'  /* 设置驱动器字母 */
 #define LV_FS_FATFS_CACHE_SIZE 0
 
 #ifdef PKG_USING_ILI9341

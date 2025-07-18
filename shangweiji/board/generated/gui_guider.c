@@ -44,18 +44,24 @@ static void chart_update_cb(lv_timer_t *timer)
         uint16_t combined_value = ((uint16_t)sensor3_value << 8) | sensor2_value;
         char buf4[32];
         snprintf(buf4, sizeof(buf4), "%d", combined_value);
+        char buf5[32];
+        snprintf(buf5, sizeof(buf5), "%d", sensor5_value);
+        uint16_t combined_value2 = ((uint16_t)sensor7_value << 8) | sensor6_value;
+        char buf6[32];
+        snprintf(buf6, sizeof(buf6), "%d", combined_value2);
         // 更新标签文本
         lv_label_set_text(ui->some_c33_3, buf1);
         lv_label_set_text(ui->some_c33_6, buf11);
         lv_label_set_text(ui->some_la_1, buf2);
         lv_label_set_text(ui->some_la_2, buf3);
         lv_label_set_text(ui->some_la_3, buf4);
-
+        lv_label_set_text(ui->some_la_4, buf5);
+        lv_label_set_text(ui->some_la_5, buf6);
 
         if (current_time - last_chart_update >= chart_update_interval) {
                 // 更新图表数据
-                lv_chart_set_next_value(ui->some_chart_1, ui->some_chart_1_0, temperature);
-                lv_chart_refresh(ui->some_chart_1);
+//                lv_chart_set_next_value(ui->some_chart_1, ui->some_chart_1_0, temperature);
+//                lv_chart_refresh(ui->some_chart_1);
 
                 // 更新最后更新时间戳
                 last_chart_update = current_time;

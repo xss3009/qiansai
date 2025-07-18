@@ -3,6 +3,7 @@
 #include "user.h"
 #include "user_modbus.h"
 #include "control_algorithm.h"
+#include "dma_sender.h"
 
 static struct rt_event event;
 static rt_timer_t      fire_detection_timer;
@@ -16,7 +17,6 @@ static PID_TypeDef LED_PID = {
 
 Warehouse_Def warehouse;
 
-//后续改为静态函数
 static void fire_detection_timer_callback(void *parameter)
 {
     // 秒级控制火情，及时应对情况
@@ -27,16 +27,16 @@ static void fire_detection_timer_callback(void *parameter)
 
     rt_err_t result;
 
-    rt_uint32_t alarmCount[NUMBER_OF_MACHINES] = {0};
+    rt_uint32_t alarmCount[NUMBER_OF_MACHINES + 4] = {0};
 
-    Warehouse_Def *deviceStatus                = &warehouse; // 传感器状态结构体
+    Warehouse_Def *deviceStatus                    = &warehouse; // 传感器状态结构体
 
-    time_t now;                                              // 当前时间戳
+    time_t now;                                                  // 当前时间戳
 
-    rt_uint8_t fireProbability                 = 0;          // 火情检测概率
-    rt_uint8_t fireCount                       = 0;          // 火情检测计数
+    rt_uint8_t fireProbability                 = 0;              // 火情检测概率
+    rt_uint8_t fireCount                       = 0;              // 火情检测计数
 
-    rt_uint8_t aFireMayOccur                   = 0;          // 可能发生火情标志
+    rt_uint8_t aFireMayOccur                   = 0;              // 可能发生火情标志
 
     rt_uint32_t AverageCombustibleGasDetection = 0;
     rt_uint32_t AverageSmokeDetection          = 0;
@@ -89,7 +89,6 @@ static void fire_detection_timer_callback(void *parameter)
         "=======\n");
     rt_kprintf("|\t序号\t\t|\t火焰检测\t|\t烟雾检测\t|\t可燃气体检测\t|\t环境光\t\t|\n");
 #endif
-get:
     rt_mutex_take(get_list_lock(), RT_WAITING_FOREVER);
 
     sensor_list = get_device_list();
@@ -112,59 +111,84 @@ get:
         if (pdevice->slaveID < 1 || pdevice->slaveID > NUMBER_OF_MACHINES)
         {
             rt_kprintf("Invalid slaveID: %d\n", pdevice->slaveID);
-            goto get;
+            continue;
         }
 
         if (pdevice->status == sensorOnline)
         {
             // 如果火焰传感器检测到火焰
-            if (ucMCoilBuf[pdevice->slaveID - 1][1])
+            if (ucMCoilBuf[pdevice->slaveID - 1][0] & 0x02)
             {
                 //对应的传感器计数加1
                 alarmCount[pdevice->slaveID - 1]++;
                 fireCount++;
             }
 
-            if (pdevice->slaveID > 16 && pdevice->slaveID <= 18)
+            switch (pdevice->type)
             {
-                rt_kprintf("| \t%d\t\t|\t%s\t\t|\t%s\t\t|\t%d%%\t\t|\t%s\t\t|\n",
-                           pdevice->slaveID,
-                           (ucMCoilBuf[pdevice->slaveID - 1][1] ? "true" : "false"),
-                           "N/A",                                             // 烟雾检测未实现
-                           usMRegInBuf[pdevice->slaveID - 1][3] * 100 / 4096, // 可燃气体检测
-                           "N/A");
-                AverageCombustibleGasDetection += usMRegInBuf[pdevice->slaveID - 1][3];
-            }
-            else if (pdevice->slaveID > 16 && pdevice->slaveID <= 20)
-            {
-                rt_kprintf("| \t%d\t\t|\t%s\t\t|\t%d%%\t\t|\t%s\t\t|\t%s\t\t|\n",
-                           pdevice->slaveID,
-                           (ucMCoilBuf[pdevice->slaveID - 1][1] ? "true" : "false"),
-                           usMRegInBuf[pdevice->slaveID - 1][3] * 100 / 4096, // 烟雾检测
-                           "N/A",                                             // 可燃气体检测未实现
-                           "N/A");
-                AverageSmokeDetection += usMRegInBuf[pdevice->slaveID - 1][3];
-            }
-            else if (pdevice->slaveID > 16 && pdevice->slaveID <= 23)
-            {
-                rt_kprintf("| \t%d\t\t|\t%s\t\t|\t%s\t\t|\t%s\t\t|\t%d\t\t|\n",
-                           pdevice->slaveID,
-                           (ucMCoilBuf[pdevice->slaveID - 1][1] ? "true" : "false"),
-                           "N/A", // 烟雾检测未实现
-                           "N/A", // 可燃气体检测未实现
-                           usMRegInBuf[pdevice->slaveID - 1][4]);
-                AverageLightIntensity += usMRegInBuf[pdevice->slaveID - 1][4];
-            }
-            else
-            {
+                case ShelfSensors:
+                {
 #ifdef DEBUG_ENABLE
-                rt_kprintf("| \t%d\t\t|\t%s\t\t|\t%s\t\t|\t%s\t\t|\t%s\t\t|\n",
-                           pdevice->slaveID,
-                           (ucMCoilBuf[pdevice->slaveID - 1][1] ? "true" : "false"),
-                           "N/A", // 烟雾检测未实现
-                           "N/A", // 可燃气体检测未实现
-                           "N/A");
+                    rt_kprintf("| \t%d\t\t|\t%s\t\t|\t%s\t\t|\t%s\t\t|\t%s\t\t|\n",
+                               pdevice->slaveID,
+                               ((ucMCoilBuf[pdevice->slaveID - 1][0] & 0x02) ? "true" : "false"),
+                               "N/A", // 烟雾检测未实现
+                               "N/A", // 可燃气体检测未实现
+                               "N/A");
 #endif
+                    break;
+                }
+                case CombustibleGasSensors:
+                {
+                    rt_kprintf("| \t%d\t\t|\t%s\t\t|\t%s\t\t|\t%d%%\t\t|\t%s\t\t|\n",
+                               pdevice->slaveID,
+                               ((ucMCoilBuf[pdevice->slaveID - 1][0] & 0x02) ? "true" : "false"),
+                               "N/A",                                             // 烟雾检测未实现
+                               usMRegInBuf[pdevice->slaveID - 1][3] * 100 / 4096, // 可燃气体检测
+                               "N/A");
+                    AverageCombustibleGasDetection += usMRegInBuf[pdevice->slaveID - 1][3];
+                    break;
+                }
+                case SmokeSensors:
+                {
+                    rt_kprintf("| \t%d\t\t|\t%s\t\t|\t%d%%\t\t|\t%s\t\t|\t%s\t\t|\n",
+                               pdevice->slaveID,
+                               ((ucMCoilBuf[pdevice->slaveID - 1][0] & 0x02) ? "true" : "false"),
+                               usMRegInBuf[pdevice->slaveID - 1][3] * 100 / 4096, // 烟雾检测
+                               "N/A",                                             // 可燃气体检测未实现
+                               "N/A");
+                    AverageSmokeDetection += usMRegInBuf[pdevice->slaveID - 1][3];
+                    break;
+                }
+                case ShelfAmbientLightSensor:
+                {
+                    rt_kprintf("| \t%d\t\t|\t%s\t\t|\t%s\t\t|\t%s\t\t|\t%d\t\t|\n",
+                               pdevice->slaveID,
+                               ((ucMCoilBuf[pdevice->slaveID - 1][0] & 0x02) ? "true" : "false"),
+                               "N/A", // 烟雾检测未实现
+                               "N/A", // 可燃气体检测未实现
+                               usMRegInBuf[pdevice->slaveID - 1][4]);
+                    AverageLightIntensity += usMRegInBuf[pdevice->slaveID - 1][4];
+                    break;
+                }
+                case DeviceControlSensors:
+                {
+
+                   fmmmmmm = usMRegInBuf[pdevice->slaveID - 1][2];
+                   fmmmmmm2 = (usMRegInBuf[pdevice->slaveID - 1][2] >> 8) & 0xFF;
+                    rt_kprintf("| \t%d\t\t|\t%s\t\t|\t%s\t\t|\t%s\t\t|\t%s\t\t|\n",
+                               pdevice->slaveID,
+                               ((ucMCoilBuf[pdevice->slaveID - 1][0] & 0x02) ? "true" : "false"),
+                               "N/A", // 烟雾检测未实现
+                               "N/A", // 可燃气体检测未实现
+                               "N/A");
+                    break;
+                }
+
+                default:
+                {
+                    break;
+                }
             }
         }
         else
@@ -175,7 +199,8 @@ get:
 
 #endif
 
-            if ((alarmCount[pdevice->slaveID - 1] > 1) && pdevice->status == sensorOffline)
+            if ((alarmCount[pdevice->slaveID - 1] > 1) && (pdevice->status == sensorOffline) &&
+                ((pdevice->slaveID > 0 && pdevice->slaveID <= NUMBER_OF_MACHINES)))
             {
                 aFireMayOccur++; // 如果检测到传感器离线且报警次数超过1次，则可能发生火情
 #ifdef DEBUG_ENABLE
@@ -187,6 +212,8 @@ get:
 
     fireProbability        = fireCount * 100 / NUMBER_OF_FLAME_SENSORS; // 平均火焰检测概率
     AverageLightIntensity /= NUMBER_OF_AMBIENT_LIGHT_SENSORS;
+    gmmmmmm = AverageLightIntensity & 0xFF;
+    gmmmmmm2 = (AverageLightIntensity >> 8) & 0xFF;
 #ifdef DEBUG_ENABLE
     rt_kprintf("|\t平均概率\t|\t%d%%\t\t|\t%d%%\t\t|\t%d%%\t\t|\t%d\t\t|\n",
                fireProbability,
@@ -225,7 +252,7 @@ get:
 #ifdef DEBUG_ENABLE
         rt_kprintf("仓库内有火灾发生！覆盖区域约为：%d%%\n", fireProbability);
 #endif
-        // rt_event_send(&event, 0x01);
+        rt_event_send(&event, 0x01);
     }
 #ifdef DEBUG_ENABLE
     rt_kprintf(
@@ -245,6 +272,7 @@ static void FireAlarm_entry(void *parameter)
         if (rt_event_recv(&event, 0x01, RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR, RT_WAITING_FOREVER, &event_id) ==
             RT_EOK)
         {
+            hmmmmmm = 555;
             for (int i = 0; i < NUMBER_OF_BUZZERS; i++)
             {
                 error_code = eMBMasterReqWriteCoil(i + 1, 1, COIL_HIGH, RT_WAITING_FOREVER);
@@ -280,7 +308,7 @@ rt_err_t fire_detection_init(void)
                                              FireAlarm_entry,         //入口函数
                                              RT_NULL,                 //入口函数参数
                                              512,                     //栈大小
-                                             22,                      //线程优先级
+                                             5,                       //线程优先级
                                              5);
 
     if ((fire_detection_timer != RT_NULL))

@@ -18,7 +18,17 @@ volatile uint8_t device_id = 0;
 volatile uint8_t status_flag = 0;
 volatile uint8_t sensor1_value = 0;
 volatile uint8_t sensor2_value = 0;
-volatile uint8_t sensor3_value = 0;  // 新增的传感器3值
+volatile uint8_t sensor3_value = 0;
+volatile uint8_t sensor4_value = 0;
+volatile uint8_t sensor5_value = 0;
+volatile uint8_t sensor6_value = 0;  // 新增传感器6
+volatile uint8_t sensor7_value = 0;  // 新增传感器7
+
+// V2包数据
+//volatile uint8_t v2_data1 = 0;
+//volatile uint8_t v2_data2 = 0;
+//volatile uint8_t v2_data3 = 0;
+//volatile char v2_timestamp[TIMESTAMP_SIZE];
 
 volatile uint8_t packet_count = 0;     // 接收到的有效包计数
 
@@ -36,7 +46,11 @@ typedef enum {
     STATE_WAIT_STATUS_FLAG,
     STATE_WAIT_SENSOR1,
     STATE_WAIT_SENSOR2,
-    STATE_WAIT_SENSOR3,  // 新增状态：等待传感器3值
+    STATE_WAIT_SENSOR3,
+    STATE_WAIT_SENSOR4,
+    STATE_WAIT_SENSOR5,
+    STATE_WAIT_SENSOR6,  // 新增状态：等待传感器6值
+    STATE_WAIT_SENSOR7,  // 新增状态：等待传感器7值
 
     // V2包状态
     STATE_WAIT_V2_DATA1,
@@ -61,7 +75,11 @@ struct receiver_ctx {
     uint8_t current_status_flag;
     uint8_t current_sensor1;
     uint8_t current_sensor2;
-    uint8_t current_sensor3;    // 新增的传感器3临时存储
+    uint8_t current_sensor3;
+    uint8_t current_sensor4;
+    uint8_t current_sensor5;
+    uint8_t current_sensor6;    // 新增传感器6临时存储
+    uint8_t current_sensor7;    // 新增传感器7临时存储
 
     // V2包临时存储
     uint8_t current_v2_data1;
@@ -139,45 +157,65 @@ static void process_received_byte(struct receiver_ctx *ctx, uint8_t byte)
 
         case STATE_WAIT_SENSOR2:
             ctx->current_sensor2 = byte;
-            ctx->state = STATE_WAIT_SENSOR3;  // 新增：等待传感器3值
+            ctx->state = STATE_WAIT_SENSOR3;
             break;
 
-        case STATE_WAIT_SENSOR3:  // 新增状态处理
+        case STATE_WAIT_SENSOR3:
             ctx->current_sensor3 = byte;
+            ctx->state = STATE_WAIT_SENSOR4;
+            break;
+
+        case STATE_WAIT_SENSOR4:
+            ctx->current_sensor4 = byte;
+            ctx->state = STATE_WAIT_SENSOR5;
+            break;
+
+        case STATE_WAIT_SENSOR5:
+            ctx->current_sensor5 = byte;
+            ctx->state = STATE_WAIT_SENSOR6;  // 新增：等待传感器6值
+            break;
+
+        case STATE_WAIT_SENSOR6:  // 新增状态处理
+            ctx->current_sensor6 = byte;
+            ctx->state = STATE_WAIT_SENSOR7;  // 新增：等待传感器7值
+            break;
+
+        case STATE_WAIT_SENSOR7:  // 新增状态处理
+            ctx->current_sensor7 = byte;
             ctx->state = STATE_WAIT_CR;
             break;
 
         /******************** V2包处理 ********************/
         case STATE_WAIT_V2_DATA1:
-            ctx->current_v2_data1 = byte;
-            ctx->state = STATE_WAIT_V2_DATA2;
-            break;
+                    ctx->current_v2_data1 = byte;
+                    ctx->state = STATE_WAIT_V2_DATA2;
+                    break;
 
-        case STATE_WAIT_V2_DATA2:
-            ctx->current_v2_data2 = byte;
-            ctx->state = STATE_WAIT_V2_DATA3;
-            break;
+                case STATE_WAIT_V2_DATA2:
+                    ctx->current_v2_data2 = byte;
+                    ctx->state = STATE_WAIT_V2_DATA3;
+                    break;
 
-        case STATE_WAIT_V2_DATA3:
-            ctx->current_v2_data3 = byte;
-            ctx->state = STATE_WAIT_V2_TIMESTAMP;
-            ctx->timestamp_index = 0; // 重置时间戳索引
-            break;
+                case STATE_WAIT_V2_DATA3:
+                    ctx->current_v2_data3 = byte;
+                    ctx->state = STATE_WAIT_V2_TIMESTAMP;
+                    ctx->timestamp_index = 0; // 重置时间戳索引
+                    break;
 
-        case STATE_WAIT_V2_TIMESTAMP:
-            // 接收时间戳字节
-            if (ctx->timestamp_index < TIMESTAMP_SIZE) {
-                ctx->current_timestamp[ctx->timestamp_index] = byte;
-                ctx->timestamp_index++;
-            }
+                case STATE_WAIT_V2_TIMESTAMP:
+                    // 接收时间戳字节
+                    if (ctx->timestamp_index < TIMESTAMP_SIZE) {
+                        ctx->current_timestamp[ctx->timestamp_index] = byte;
+                        ctx->timestamp_index++;
+                    }
 
-            // 检查是否接收完所有时间戳字节
-            if (ctx->timestamp_index >= TIMESTAMP_SIZE) {
-                // 确保字符串正确终止
-                ctx->current_timestamp[TIMESTAMP_SIZE-1] = '\0';
-                ctx->state = STATE_WAIT_CR;
-            }
-            break;
+                    // 检查是否接收完所有时间戳字节
+                    if (ctx->timestamp_index >= TIMESTAMP_SIZE) {
+                        // 确保字符串正确终止
+                        ctx->current_timestamp[TIMESTAMP_SIZE-1] = '\0';
+                        ctx->state = STATE_WAIT_CR;
+                    }
+                    break;
 
         /******************** 通用结束状态 ********************/
         case STATE_WAIT_CR:
@@ -201,24 +239,32 @@ static void process_received_byte(struct receiver_ctx *ctx, uint8_t byte)
                     status_flag = ctx->current_status_flag;
                     sensor1_value = ctx->current_sensor1;
                     sensor2_value = ctx->current_sensor2;
-                    sensor3_value = ctx->current_sensor3;  // 新增传感器3值
+                    sensor3_value = ctx->current_sensor3;
+                    sensor4_value = ctx->current_sensor4;
+                    sensor5_value = ctx->current_sensor5;
+                    sensor6_value = ctx->current_sensor6;  // 新增传感器6值
+                    sensor7_value = ctx->current_sensor7;  // 新增传感器7值
 
-                    rt_kprintf("V1包: 温度=0x%02X, ID=0x%02X, 状态=0x%02X, 传感器1=0x%02X, 传感器2=0x%02X, 传感器3=0x%02X\n",
+                    rt_kprintf("V1包: 温度=0x%02X, ID=0x%02X, 状态=0x%02X, "
+                              "传感器1=0x%02X, 传感器2=0x%02X, 传感器3=0x%02X, "
+                              "传感器4=0x%02X, 传感器5=0x%02X, 传感器6=0x%02X, 传感器7=0x%02X\n",
                               temperature, device_id, status_flag,
-                              sensor1_value, sensor2_value, sensor3_value);
+                              sensor1_value, sensor2_value, sensor3_value,
+                              sensor4_value, sensor5_value, sensor6_value, sensor7_value);
                 }
                 else { // V2包
                     v2_data1 = ctx->current_v2_data1;
-                    v2_data2 = ctx->current_v2_data2;
-                    v2_data3 = ctx->current_v2_data3;
-                    rt_strncpy((char*)v2_timestamp, ctx->current_timestamp, TIMESTAMP_SIZE);
-                    v2_timestamp[TIMESTAMP_SIZE-1] = '\0';
+                                        v2_data2 = ctx->current_v2_data2;
+                                        v2_data3 = ctx->current_v2_data3;
+                                        rt_strncpy((char*)v2_timestamp, ctx->current_timestamp, TIMESTAMP_SIZE);
+                                        v2_timestamp[TIMESTAMP_SIZE-1] = '\0';
+                                        new_data_available = 1;
 
-                    rt_kprintf("V2包: 数据1=0x%02X, 数据2=0x%02X, 数据3=0x%02X, 时间=%s\n",
-                              v2_data1, v2_data2, v2_data3, v2_timestamp);
+                                        rt_kprintf("V2包: 数据1=0x%02X, 数据2=0x%02X, 数据3=0x%02X, 时间=%s\n",
+                                                  v2_data1, v2_data2, v2_data3, v2_timestamp);
                 }
             }
-            // 无论是否接收到LF，都重置状态机
+            // 重置状态机
             ctx->state = STATE_WAIT_SYNC1;
             break;
 
@@ -253,7 +299,7 @@ void hal_entry(void)
 {
     rt_kprintf("\n二号板子 - 数据接收端\n");
     rt_kprintf("支持V1和V2两种数据包格式\n");
-    rt_kprintf("V1包格式: AA BB 54 45 [温度] [ID] [状态] [传感器1] [传感器2] [传感器3] \\r\\n\n");
+    rt_kprintf("V1包格式: AA BB 54 45 [温度] [ID] [状态] [传感器1] [传感器2] [传感器3] [传感器4] [传感器5] [传感器6] [传感器7] \\r\\n\n");
     rt_kprintf("V2包格式: AA BB 32 23 [数据1] [数据2] [数据3] [时间戳] \\r\\n\n");
 
     /* 初始化接收上下文 */
@@ -265,7 +311,11 @@ void hal_entry(void)
         .current_status_flag = 0,
         .current_sensor1 = 0,
         .current_sensor2 = 0,
-        .current_sensor3 = 0,  // 初始化新增的传感器3值
+        .current_sensor3 = 0,
+        .current_sensor4 = 0,
+        .current_sensor5 = 0,
+        .current_sensor6 = 0,  // 初始化新增的传感器6值
+        .current_sensor7 = 0,  // 初始化新增的传感器7值
         // V2包初始化
         .current_v2_data1 = 0,
         .current_v2_data2 = 0,
@@ -274,7 +324,7 @@ void hal_entry(void)
     };
     // 初始化时间戳缓冲区
     memset(ctx.current_timestamp, 0, TIMESTAMP_SIZE);
-    ctx.current_timestamp[TIMESTAMP_SIZE-1] = '\0';
+    ctx.current_timestamp[TIMESTAMP_SIZE - 1] = '\0';
 
     /* 查找并打开串口设备 */
     ctx.serial = rt_device_find(SAMPLE_UART_NAME);
@@ -323,7 +373,7 @@ void hal_entry(void)
     rt_pin_mode(LED_PIN, PIN_MODE_OUTPUT);
     rt_pin_mode(SD_CD, PIN_MODE_INPUT);
 
-    /* 主循环 - 显示接收到的数据 */
+    /* 主循环 */
     while (1) {
         // 控制LED闪烁表示系统运行中
         rt_pin_write(LED_PIN, PIN_HIGH);

@@ -35,15 +35,15 @@ void rtc_init(void)
     }
 
     /* 设置日期 */
-    ret = set_date(2025, 7, 3);
-    rt_kprintf("set RTC date to 2025-07-03\n");
+    ret = set_date(2025, 7, 16);
+    rt_kprintf("set RTC date to 2025-07-16\n");
     if (ret != RT_EOK)
     {
         rt_kprintf("set RTC date failed\n");
     }
 
     /* 设置时间 */
-    ret = set_time(23, 32, 00);
+    ret = set_time(22, 46, 00);
     if (ret != RT_EOK)
     {
         rt_kprintf("set RTC time failed\n");

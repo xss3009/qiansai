@@ -25,6 +25,10 @@ volatile uint8_t openflag = 0;     // 状态标志
 volatile uint8_t smmmmmm = 55;    // 新增传感器值1
 volatile uint8_t gmmmmmm = 66;    // 新增传感器值2
 volatile uint8_t gmmmmmm2 = 66;
+volatile uint8_t hmmmmmm = 0;
+volatile uint8_t cmmmmmm = 2;
+volatile uint8_t fmmmmmm = 11;
+volatile uint8_t fmmmmmm2 = 0;
 volatile uint8_t v2_data1 = 0;   // V2包数据1
 volatile uint8_t v2_data2 = 0;   // V2包数据2
 volatile uint8_t v2_data3 = 0;   // V2包数据3
@@ -76,6 +80,10 @@ rt_err_t dma_send_packet_v1(uint8_t data_value)
         .sensor1 = smmmmmm,    // 新增传感器值1
         .sensor2 = gmmmmmm,    // 新增传感器值2
         .sensor3 = gmmmmmm2,
+        .sensor4 = hmmmmmm,
+        .sensor5 = cmmmmmm,
+        .sensor6 = fmmmmmm,
+        .sensor7 = fmmmmmm2,
         .newline = {'\r', '\n'} // 换行符
     };
 
@@ -92,8 +100,9 @@ rt_err_t dma_send_packet_v1(uint8_t data_value)
     }
 
     /* 调试输出 - 增加两个新变量 */
-    rt_kprintf("[DMA Sender] Sent v1: Temp=0x%02X, ID=0x%02X, Flag=0x%02X, Sensor1=0x%02X, Sensor2=0x%02X\n ,Sensor3=0x%02X\n",
-              tmmmmmm, openid, openflag, smmmmmm, gmmmmmm, gmmmmmm2);
+    rt_kprintf("[DMA Sender] Sent v1: Temp=0x%02X, ID=0x%02X, Flag=0x%02X, "
+                  "Sensor1=0x%02X, Sensor2=0x%02X, Sensor3=0x%02X, Sensor4=0x%02X\n, Sensor5=0x%02X\n, Sensor6=0x%02X\n, Sensor7=0x%02X\n",
+                  tmmmmmm, openid, openflag, smmmmmm, gmmmmmm, gmmmmmm2, hmmmmmm, cmmmmmm, fmmmmmm, fmmmmmm2);
 
     return RT_EOK;
 }

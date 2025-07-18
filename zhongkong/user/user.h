@@ -15,7 +15,7 @@
 // 传感器数量定义
 #define NUMBER_OF_DISTANCE_SENSORS             20 //距离传感器数量
 #define NUMBER_OF_TEMPERATURE_HUMIDITY_SENSORS 20 //温湿度传感器数量
-#define NUMBER_OF_BUZZERS                      20 //蜂鸣器数量
+#define NUMBER_OF_BUZZERS                      24 //蜂鸣器数量
 #define NUMBER_OF_FLAME_SENSORS                20 //火焰传感器数量
 #define NUMBER_OF_SMOKE_SENSORS                2  //烟雾传感器数量
 #define NUMBER_OF_COMBUSTIBLE_GAS_SENSORS      2  //可燃气体传感器数量

@@ -1074,6 +1074,10 @@ FSP Configuration
     Parameter Checking: Default (BSP)
     Multiplex Interrupt: Disabled
     
+  Module "Watchdog (r_wdt)"
+    Parameter Checking: Default (BSP)
+    Multiplex Interrupt: Disabled
+    
   HAL
     Instance "g_ioport I/O Port (r_ioport)"
       General: Name: g_ioport
@@ -1247,4 +1251,12 @@ FSP Configuration
       Interrupts: Transmit Data Empty Interrupt Priority: Priority 12
       Interrupts: Transmit End Interrupt Priority: Priority 12
       Interrupts: Error Interrupt Priority: Priority 12
+      
+    Instance "g_wdt Watchdog (r_wdt)"
+      Name: g_wdt
+      Timeout: 16,384 Cycles
+      Clock Division Ratio: PCLK/8192
+      Window Start Position: 100 (Window Position Not Specified)
+      Window End Position: 0 (Window Position Not Specified)
+      WDT Callback: NULL
       

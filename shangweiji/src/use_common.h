@@ -21,6 +21,10 @@ extern volatile uint8_t status_flag;
 extern volatile uint8_t sensor1_value;
 extern volatile uint8_t sensor2_value;
 extern volatile uint8_t sensor3_value;
+extern volatile uint8_t sensor4_value;
+extern volatile uint8_t sensor5_value;
+extern volatile uint8_t sensor6_value;
+extern volatile uint8_t sensor7_value;
 // 函数声明
 void init_chart_mq(void);
 void process_chart_updates(void *parameter);

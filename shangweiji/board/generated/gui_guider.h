@@ -21,11 +21,9 @@ typedef struct
 	lv_obj_t *some;
 	bool some_del;
 	lv_obj_t *some_c_1;
-	lv_obj_t *some_img_1;
+	lv_obj_t *some_img_13;
 	lv_obj_t *some_bS_1;
 	lv_obj_t *some_bS_1_label;
-	lv_obj_t *some_chart_1;
-	lv_chart_series_t *some_chart_1_0;
 	lv_obj_t *some_label_10;
 	lv_obj_t *some_label_11;
 	lv_obj_t *some_label_1;
@@ -35,6 +33,13 @@ typedef struct
 	lv_obj_t *some_label_12;
 	lv_obj_t *some_label_13;
 	lv_obj_t *some_label_14;
+	lv_obj_t *some_label_15;
+	lv_obj_t *some_label_16;
+	lv_obj_t *some_label_17;
+	lv_obj_t *some_label_18;
+	lv_obj_t *some_la_4;
+	lv_obj_t *some_la_5;
+	lv_obj_t *some_label_19;
 	lv_obj_t *some_c_3;
 	lv_obj_t *some_img_9;
 	lv_obj_t *some_c_332;
@@ -97,7 +102,7 @@ extern lv_ui guider_ui;
 
 
 void setup_scr_some(lv_ui *ui);
-LV_IMG_DECLARE(_some_alpha_490x286);
+LV_IMG_DECLARE(_Warehouse_alpha_488x282);
 LV_IMG_DECLARE(_Warehouse_alpha_489x286);
 LV_IMG_DECLARE(_qinghuo_alpha_100x100);
 LV_IMG_DECLARE(_milcarr_alpha_100x100);
