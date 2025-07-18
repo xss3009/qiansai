@@ -176,6 +176,12 @@ static void fire_detection_timer_callback(void *parameter)
 
                    fmmmmmm = usMRegInBuf[pdevice->slaveID - 1][2];
                    fmmmmmm2 = (usMRegInBuf[pdevice->slaveID - 1][2] >> 8) & 0xFF;
+
+                   ffmmmmm = usMRegInBuf[pdevice->slaveID - 1][3];
+                   ffmmmmm2 = (usMRegInBuf[pdevice->slaveID - 1][3] >> 8) & 0xFF;
+
+                   fffmmmm = usMRegInBuf[pdevice->slaveID - 1][4];
+                   fffmmmm2 = (usMRegInBuf[pdevice->slaveID - 1][4] >> 8) & 0xFF;
                     rt_kprintf("| \t%d\t\t|\t%s\t\t|\t%s\t\t|\t%s\t\t|\t%s\t\t|\n",
                                pdevice->slaveID,
                                ((ucMCoilBuf[pdevice->slaveID - 1][0] & 0x02) ? "true" : "false"),
@@ -214,7 +220,7 @@ static void fire_detection_timer_callback(void *parameter)
     AverageLightIntensity /= NUMBER_OF_AMBIENT_LIGHT_SENSORS;
     gmmmmmm = AverageLightIntensity & 0xFF;
     gmmmmmm2 = (AverageLightIntensity >> 8) & 0xFF;
-#ifdef DEBUG_ENABLE
+#ifdef DEBUG_ENABLE  /*烟幕火灾*/
     rt_kprintf("|\t平均概率\t|\t%d%%\t\t|\t%d%%\t\t|\t%d%%\t\t|\t%d\t\t|\n",
                fireProbability,
                AverageSmokeDetection = AverageSmokeDetection * 100 / 4096 / NUMBER_OF_SMOKE_SENSORS,
@@ -222,6 +228,8 @@ static void fire_detection_timer_callback(void *parameter)
                    AverageCombustibleGasDetection * 100 / 4096 / NUMBER_OF_COMBUSTIBLE_GAS_SENSORS,
                AverageLightIntensity);
 #endif
+    ywmmmmm = AverageSmokeDetection;
+    krmmmmm = AverageCombustibleGasDetection;
 
     i++;
     if (i >= 4)

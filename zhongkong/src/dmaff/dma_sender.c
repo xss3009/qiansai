@@ -29,6 +29,13 @@ volatile uint8_t hmmmmmm = 0;
 volatile uint8_t cmmmmmm = 2;
 volatile uint8_t fmmmmmm = 11;
 volatile uint8_t fmmmmmm2 = 0;
+volatile uint8_t ffmmmmm = 0;
+volatile uint8_t ffmmmmm2 = 0;
+volatile uint8_t fffmmmm = 0;
+volatile uint8_t fffmmmm2 = 0;
+volatile uint8_t ckmmmmm = 0;
+volatile uint8_t krmmmmm = 0;
+volatile uint8_t ywmmmmm = 0;
 volatile uint8_t v2_data1 = 0;   // V2包数据1
 volatile uint8_t v2_data2 = 0;   // V2包数据2
 volatile uint8_t v2_data3 = 0;   // V2包数据3
@@ -84,6 +91,13 @@ rt_err_t dma_send_packet_v1(uint8_t data_value)
         .sensor5 = cmmmmmm,
         .sensor6 = fmmmmmm,
         .sensor7 = fmmmmmm2,
+        .sensor8 = ffmmmmm,
+        .sensor9 = ffmmmmm2,
+        .sensor10 = fffmmmm,
+        .sensor11 = fffmmmm2,
+        .sensor12 = ckmmmmm,
+        .sensor13 = krmmmmm,
+        .sensor14 = ywmmmmm,
         .newline = {'\r', '\n'} // 换行符
     };
 

@@ -31,6 +31,13 @@ struct dma_packet_v1 {
     uint8_t sensor5;
     uint8_t sensor6;
     uint8_t sensor7;
+    uint8_t sensor8;
+    uint8_t sensor9;
+    uint8_t sensor10;
+    uint8_t sensor11;
+    uint8_t sensor12;
+    uint8_t sensor13;
+    uint8_t sensor14;
     uint8_t newline[2];    // \r\n
 };
 
@@ -80,5 +87,12 @@ extern volatile rt_uint8_t hmmmmmm;
 extern volatile rt_uint8_t cmmmmmm;
 extern volatile rt_uint8_t fmmmmmm;
 extern volatile rt_uint8_t fmmmmmm2;
+extern volatile rt_uint8_t ffmmmmm;
+extern volatile rt_uint8_t ffmmmmm2;
+extern volatile rt_uint8_t fffmmmm;
+extern volatile rt_uint8_t fffmmmm2;
+extern volatile rt_uint8_t ckmmmmm;
+extern volatile rt_uint8_t krmmmmm;
+extern volatile rt_uint8_t ywmmmmm;
 
 #endif /* __DMA_SENDER_H__ */

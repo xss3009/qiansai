@@ -182,7 +182,7 @@ void sampleShelvesEnvironmentalData(DayData_Def *dayData)
 
             dayData->averageWarehouseTemperature[dayData->counting] = (averageTemperature / NumberOfOnlineSensors) / 10;
             dayData->averageWarehouseHumidity[dayData->counting]    = (averageHumidity / NumberOfOnlineSensors) / 10;
-            dayData->averageWarehouseGoods[dayData->counting]       = averageCargo * 100 / 16;
+            dayData->averageWarehouseGoods[dayData->counting]       = averageCargo * 100 / NUMBER_OF_DISTANCE_SENSORS;
 #ifdef DEBUG_ENABLE
             rt_kprintf("仓库平均温度：%d.%d℃\n",
                        dayData->averageWarehouseTemperature[dayData->counting],
@@ -193,6 +193,8 @@ void sampleShelvesEnvironmentalData(DayData_Def *dayData)
             rt_kprintf("仓库平均使用率：%d%%\n", dayData->averageWarehouseGoods[dayData->counting]);
             tmmmmmm = dayData->averageWarehouseTemperature[dayData->counting];
             smmmmmm = dayData->averageWarehouseHumidity[dayData->counting];
+            ckmmmmm = dayData->averageWarehouseGoods[dayData->counting];
+
 #endif
 
             dayData->counting++; // 日数据计数器递增
