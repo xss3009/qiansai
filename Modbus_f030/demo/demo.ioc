@@ -175,6 +175,7 @@ SH.S_TIM3_CH2.ConfNb=1
 TIM3.Channel-PWM\ Generation1\ CH1=TIM_CHANNEL_1
 TIM3.Channel-PWM\ Generation2\ CH2=TIM_CHANNEL_2
 TIM3.IPParameters=Channel-PWM Generation1 CH1,Channel-PWM Generation2 CH2,Prescaler,Period
+# Set TIM3 period to 9 for desired PWM frequency (Period = (Timer_Count - 1)), adjust as needed for your application
 TIM3.Period=9
 TIM3.Prescaler=479
 USART1.IPParameters=VirtualMode-Asynchronous
