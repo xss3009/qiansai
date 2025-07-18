@@ -14,6 +14,16 @@
         "cstdint": "c",
         "numbers": "c",
         "random": "c",
-        "cstdio": "c"
+        "cstdio": "c",
+        "array": "c",
+        "deque": "c",
+        "string": "c",
+        "unordered_map": "c",
+        "string_view": "c",
+        "format": "c",
+        "initializer_list": "c",
+        "span": "c",
+        "text_encoding": "c",
+        "string.h": "c"
     }
 }

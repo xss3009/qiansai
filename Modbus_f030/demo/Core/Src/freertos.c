@@ -1,21 +1,22 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * File Name          : freertos.c
-  * Description        : Code for freertos applications
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2024 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * File Name          : freertos.c
+ * Description        : Code for freertos applications
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2024 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 
+// 注意：本程序基于百问网的Modbus传感器程序进行修改
 // 模块名称 : 嵌入式竞赛版Modbus传感器程序
 // 文件名称 : freertos.c
 // 作    者 : FHS
@@ -28,6 +29,8 @@
 //  日期       |   版本   |   作者    |   描述
 //--------------------------------------------------------------------
 // 2025-06-19 |  V1.0    |   FHS     | 修改完成第一版
+// 2025-07-14 |  V1.1    |   FHS     | 增加看门狗复位
+// 2025-07-15 |  V1.2    |   FHS     | 修复BUG
 //====================================================================
 
 /* USER CODE END Header */
@@ -47,6 +50,7 @@
 #include "usart.h"
 #include "semphr.h"
 #include "string.h"
+#include "iwdg.h"
 
 /* USER CODE END Includes */
 
@@ -59,7 +63,10 @@
 /* USER CODE BEGIN PD */
 
 #define USE_QSB
-#define PM
+// #define PM
+// #define KZ
+// #define BH1750
+#define QT
 //#define USE_ENV_MONITOR_SENSOR 1
 //#define USE_TMP_HUMI_SENSOR 1
 
@@ -104,14 +111,33 @@ SemaphoreHandle_t AHT20Mutex;
 static void AHT20Task(void *argument);
 static void adc_sensorTask(void *argument);
 static void aht20_get_datas(uint16_t *temp, uint16_t *humi);
+
+#ifdef BH1750
+
 static void BH1750Task(void *argument);
 static void BH1750_get_datas(uint16_t *light);
+
+#endif
+
+#ifdef PM
+
 static void Sensor_Parsing_Task(void *argument);
 
-#define SLAVE_ADDR    24
+#endif
+
+#define SLAVE_ADDR    20
 #define NB_BITS       5
 #define NB_INPUT_BITS 1
-#define NB_REGISTERS  2
+
+#ifdef KZ
+
+#define NB_REGISTERS 2
+
+#else
+
+#define NB_REGISTERS 0
+
+#endif
 
 #ifdef BH1750
 
@@ -121,7 +147,7 @@ static void Sensor_Parsing_Task(void *argument);
 
 #define NB_INPUT_REGISTERS 14
 
-#elif
+#else
 
 #define NB_INPUT_REGISTERS 4
 
@@ -243,11 +269,11 @@ typedef struct
 
 /* USER CODE END Variables */
 /* Definitions for defaultTask */
-osThreadId_t defaultTaskHandle;
+osThreadId_t         defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
-  .name = "defaultTask",
-  .stack_size = 256 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+    .name       = "defaultTask",
+    .stack_size = 256 * 4,
+    .priority   = (osPriority_t)osPriorityNormal,
 };
 
 /* Private function prototypes -----------------------------------------------*/
@@ -264,32 +290,33 @@ void MX_FREERTOS_Init(void); /* (MISRA C 2004 rule 8.1) */
   * @param  None
   * @retval None
   */
-void MX_FREERTOS_Init(void) {
-  /* USER CODE BEGIN Init */
+void MX_FREERTOS_Init(void)
+{
+    /* USER CODE BEGIN Init */
 
-  /* USER CODE END Init */
+    /* USER CODE END Init */
 
-  /* USER CODE BEGIN RTOS_MUTEX */
+    /* USER CODE BEGIN RTOS_MUTEX */
     /* add mutexes, ... */
-  /* USER CODE END RTOS_MUTEX */
+    /* USER CODE END RTOS_MUTEX */
 
-  /* USER CODE BEGIN RTOS_SEMAPHORES */
+    /* USER CODE BEGIN RTOS_SEMAPHORES */
     /* add semaphores, ... */
-  /* USER CODE END RTOS_SEMAPHORES */
+    /* USER CODE END RTOS_SEMAPHORES */
 
-  /* USER CODE BEGIN RTOS_TIMERS */
+    /* USER CODE BEGIN RTOS_TIMERS */
     /* start timers, add new ones, ... */
-  /* USER CODE END RTOS_TIMERS */
+    /* USER CODE END RTOS_TIMERS */
 
-  /* USER CODE BEGIN RTOS_QUEUES */
+    /* USER CODE BEGIN RTOS_QUEUES */
     /* add queues, ... */
-  /* USER CODE END RTOS_QUEUES */
+    /* USER CODE END RTOS_QUEUES */
 
-  /* Create the thread(s) */
-  /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+    /* Create the thread(s) */
+    /* creation of defaultTask */
+    defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
 
-  /* USER CODE BEGIN RTOS_THREADS */
+    /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
 #ifdef USE_QSB
     osThreadNew(AHT20Task, NULL, &defaultTask_attributes);
@@ -303,12 +330,11 @@ void MX_FREERTOS_Init(void) {
 #endif
 
 #endif
-  /* USER CODE END RTOS_THREADS */
+    /* USER CODE END RTOS_THREADS */
 
-  /* USER CODE BEGIN RTOS_EVENTS */
+    /* USER CODE BEGIN RTOS_EVENTS */
     /* add events, ... */
-  /* USER CODE END RTOS_EVENTS */
-
+    /* USER CODE END RTOS_EVENTS */
 }
 
 /* USER CODE BEGIN Header_StartDefaultTask */
@@ -421,6 +447,8 @@ static void BH1750Task(void *argument)
 }
 
 #endif
+
+#ifdef PM
 
 #define FRAME_SIZE         32
 #define DOUBLE_BUFFER_SIZE (FRAME_SIZE) // 双缓冲大小
@@ -538,27 +566,40 @@ static void Sensor_Parsing_Task(void *argument)
     }
 }
 
-static uint8_t beep_flag   = 0;
-static uint8_t gas_flag    = 0;
+#endif
+
+static uint8_t beep_flag = 0;
+#ifdef QT
+static uint8_t gas_flag = 0;
+#endif
 static uint8_t beep_status = 0;
 
 static void adc_sensorTask(void *argument)
 {
-    uint8_t i = 0, j = 0;
+    uint8_t i = 0;
+
+#ifdef QT
+
+    uint8_t j = 0;
+
+#endif
 
     while (1)
     {
         if (beep_flag)
         {
+            HAL_IWDG_Refresh(&hiwdg);
             i++;
             if (i >= 5)
             {
+                HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_15);
                 i = 0;
             }
         }
-#if QT
+#ifdef QT
         else if (gas_flag)
         {
+            HAL_IWDG_Refresh(&hiwdg);
             i++;
             switch (j)
             {
@@ -633,10 +674,10 @@ static void adc_sensorTask(void *argument)
 /* USER CODE END Header_StartDefaultTask */
 void StartDefaultTask(void *argument)
 {
-  /* USER CODE BEGIN StartDefaultTask */
+    /* USER CODE BEGIN StartDefaultTask */
     /* Infinite loop */
     // uint16_t          adc_value[2] = {0};
-    GPIO_PinState     val;        // GPIO状态暂存变量
+    // GPIO_PinState     val;        // GPIO状态暂存变量
     uint8_t          *query;      // Modbus查询数据缓冲区指针
     modbus_t         *ctx;        // Modbus上下文对象
     int               rc;         // 操作返回值
@@ -664,7 +705,7 @@ void StartDefaultTask(void *argument)
         //fprintf(stderr, "Unable to connect %s\n", modbus_strerror(errno));
         modbus_free(ctx);
         vTaskDelete(NULL);
-        ; // 异常退出
+        // 异常退出
     }
 
     // 主任务循环
@@ -674,6 +715,9 @@ void StartDefaultTask(void *argument)
         do
         {
             rc = modbus_receive(ctx, query);
+
+            if (rc > 0)
+                HAL_IWDG_Refresh(&hiwdg);
             /* Filtered queries return 0 */
         } while (rc == 0);
 
@@ -729,6 +773,23 @@ void StartDefaultTask(void *argument)
 #ifdef USE_QSB
         /* 更新ADC采样值到输入寄存器 */
 #ifdef PM
+        // uint16_t adc_val[2];
+
+        // for (int i = 0; i < 2; i++)
+        // {
+        //     HAL_ADC_Start(&hadc);
+        //     if (HAL_OK == HAL_ADC_PollForConversion(&hadc, 100))
+        //     {
+        //         adc_val[i] = HAL_ADC_GetValue(&hadc);
+        //     }
+        // }
+        // // 火焰传感器阈值检测（通道0）
+        // if (adc_val[0] <= 600 || beep_flag)
+        // {
+        //     mb_mapping->tab_bits[1] = 1; // 设置线圈寄存器1
+        //     mb_mapping->tab_bits[0] = 1;
+        //     beep_flag               = 1; // 触发蜂鸣器标志
+        // }
 
 #else
         for (int i = 0; i < 2; i++)
@@ -739,7 +800,6 @@ void StartDefaultTask(void *argument)
                 mb_mapping->tab_input_registers[i + 2] = HAL_ADC_GetValue(&hadc);
             }
         }
-
         // 火焰传感器阈值检测（通道0）
         if (mb_mapping->tab_input_registers[2] <= 600 || beep_flag)
         {
@@ -762,6 +822,16 @@ void StartDefaultTask(void *argument)
             gas_flag                      = 0;
             mb_mapping->tab_input_bits[0] = 0;
         }
+#elif defined(PM)
+        //        if (adc_val[1] <= 600)
+        //        {
+        //            mb_mapping->tab_input_bits[0] = 1;
+        //        }
+        //        else
+        //        {
+        //            mb_mapping->tab_input_bits[0] = 0;
+        //        }
+
 #else
         if (mb_mapping->tab_input_registers[3] <= 600)
         {
@@ -921,31 +991,31 @@ void StartDefaultTask(void *argument)
         else
             HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);   //LED3
 
-				if(((int16_t)mb_mapping->tab_registers[0] >= 0) && ((int16_t)mb_mapping->tab_registers[0] <= 100))
-						TIM3->CCR1 = mb_mapping->tab_registers[0];
-				else if((int16_t)mb_mapping->tab_registers[0] < 0)
-				{
-						TIM3->CCR1 = 0;
-						mb_mapping->tab_registers[0] = 0;
-				}
-				else if((int16_t)mb_mapping->tab_registers[0] > 100)
-				{
-						TIM3->CCR1 = 100;
-						mb_mapping->tab_registers[0] = 100;
-				}
+        if (((int16_t)mb_mapping->tab_registers[0] >= 0) && ((int16_t)mb_mapping->tab_registers[0] <= 100))
+            TIM3->CCR1 = mb_mapping->tab_registers[0];
+        else if ((int16_t)mb_mapping->tab_registers[0] < 0)
+        {
+            TIM3->CCR1                   = 0;
+            mb_mapping->tab_registers[0] = 0;
+        }
+        else if ((int16_t)mb_mapping->tab_registers[0] > 100)
+        {
+            TIM3->CCR1                   = 100;
+            mb_mapping->tab_registers[0] = 100;
+        }
 
-				if(((int16_t)mb_mapping->tab_registers[1] >= 0) && ((int16_t)mb_mapping->tab_registers[1] <= 100))
-						TIM3->CCR2 = mb_mapping->tab_registers[1];
-				else if((int16_t)mb_mapping->tab_registers[1] < 0)
-				{
-						TIM3->CCR2 = 0;
-						mb_mapping->tab_registers[1] = 0;
-				}
-				else if((int16_t)mb_mapping->tab_registers[1] > 100)
-				{
-						TIM3->CCR2 = 100;
-						mb_mapping->tab_registers[1] = 100;
-				}
+        if (((int16_t)mb_mapping->tab_registers[1] >= 0) && ((int16_t)mb_mapping->tab_registers[1] <= 100))
+            TIM3->CCR2 = mb_mapping->tab_registers[1];
+        else if ((int16_t)mb_mapping->tab_registers[1] < 0)
+        {
+            TIM3->CCR2                   = 0;
+            mb_mapping->tab_registers[1] = 0;
+        }
+        else if ((int16_t)mb_mapping->tab_registers[1] > 100)
+        {
+            TIM3->CCR2                   = 100;
+            mb_mapping->tab_registers[1] = 100;
+        }
 
 #endif
     }
@@ -959,11 +1029,10 @@ void StartDefaultTask(void *argument)
 
     vTaskDelete(NULL); // 安全删除任务
 
-  /* USER CODE END StartDefaultTask */
+                       /* USER CODE END StartDefaultTask */
 }
 
 /* Private application code --------------------------------------------------*/
 /* USER CODE BEGIN Application */
 
 /* USER CODE END Application */
-

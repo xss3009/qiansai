@@ -37,6 +37,7 @@
 .\demo\freertos.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_flash_ex.h
 .\demo\freertos.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_i2c.h
 .\demo\freertos.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_i2c_ex.h
+.\demo\freertos.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_iwdg.h
 .\demo\freertos.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_pwr.h
 .\demo\freertos.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_pwr_ex.h
 .\demo\freertos.o: ../Drivers/STM32F0xx_HAL_Driver/Inc/stm32f0xx_hal_tim.h
@@ -58,3 +59,4 @@
 .\demo\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h
 .\demo\freertos.o: ../Middlewares/Third_Party/FreeRTOS/Source/include/queue.h
 .\demo\freertos.o: D:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\demo\freertos.o: ../Core/Inc/iwdg.h
